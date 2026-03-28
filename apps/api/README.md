@@ -1,15 +1,20 @@
-# API auth branch
+# API application skeleton
 
-This branch adds shared auth request and response contracts plus a standalone authentication flow.
+This branch adds a standalone Express application structure that can be merged even before the database layer.
 
-## Endpoints
+## Available routes
 
-- `POST /auth/register`
-- `POST /auth/login`
-- `GET /auth/session`
 - `GET /health`
+- `GET /system/ready`
+
+## Local setup
+
+1. Copy `.env.example` to `.env`
+2. Run `pnpm install` inside `apps/api`
+3. Run `pnpm check:env`
+4. Run `pnpm dev`
 
 ## Notes
 
-- Request body validation uses Zod-based middleware.
-- Authentication uses an in-memory user store and signed bearer tokens so it remains merge-safe without a database branch.
+- Environment validation fails fast on boot so missing configuration is caught immediately.
+- The route/module layout is intentionally small and safe to extend in later issues without restructuring again.
