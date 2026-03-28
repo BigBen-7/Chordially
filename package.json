@@ -1,0 +1,16 @@
+{
+  "name": "chordially",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@8.15.6",
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "prisma": "pnpm --filter @chordially/api prisma"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.9"
+  }
+}

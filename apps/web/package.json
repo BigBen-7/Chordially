@@ -1,0 +1,24 @@
+{
+  "name": "@chordially/web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "echo 'No lint configured for @chordially/web'",
+    "test": "echo 'No tests configured for @chordially/web'"
+  },
+  "dependencies": {
+    "@chordially/types": "workspace:*",
+    "next": "14.2.30",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.18",
+    "typescript": "^5.5.4"
+  }
+}
