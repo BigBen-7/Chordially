@@ -4,6 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Chordially Admin",
   description: "Admin login and overview shell."
+  
 };
 
 export default function RootLayout({
