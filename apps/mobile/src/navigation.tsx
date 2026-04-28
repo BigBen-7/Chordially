@@ -42,14 +42,17 @@ const AuthStack = createNativeStackNavigator<AuthStackParams>();
 const FanTab = createBottomTabNavigator<FanTabParams>();
 const ArtistTab = createBottomTabNavigator<ArtistTabParams>();
 
+import { LoginScreen } from "./auth/LoginScreen";
+import { RegisterScreen } from "./auth/RegisterScreen";
+
 // Placeholder screens — replace with real screen imports.
 const Screen = () => null;
 
 function AuthNavigator() {
   return (
     <AuthStack.Navigator screenOptions={{ headerShown: false }}>
-      <AuthStack.Screen name="Login" component={Screen} />
-      <AuthStack.Screen name="Register" component={Screen} />
+      <AuthStack.Screen name="Login" component={LoginScreen} />
+      <AuthStack.Screen name="Register" component={RegisterScreen} />
     </AuthStack.Navigator>
   );
 }

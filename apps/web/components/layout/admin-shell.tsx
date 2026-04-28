@@ -23,6 +23,7 @@ export function AdminShell({
             <Link className="button button--secondary" href="/admin/bellabuks/sessions">Sessions</Link>
             <Link className="button button--secondary" href="/admin/bellabuks/users">Users</Link>
             <Link className="button button--secondary" href="/admin/bellabuks/audit">Audit trail</Link>
+            <Link className="button button--secondary" href="/admin/bellabuks/lockouts">Lockouts</Link>
             <Link className="button button--secondary" href="/admin/login">Switch admin</Link>
           </nav>
         </section>
