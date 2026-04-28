@@ -46,7 +46,7 @@ export function usePageState<T>({ fetch }: UsePageStateOptions<T>): UsePageState
     return () => {
       cancelled = true;
     };
-  }, [tick]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [tick]); // fetch is stable (passed from outside); tick is the only trigger
 
   // Listen for online/offline transitions
   useEffect(() => {

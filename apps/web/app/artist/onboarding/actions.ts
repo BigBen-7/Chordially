@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { setArtist } from "../../../lib/artist";
+import { getOnboardingState, advanceOnboarding, setOnboardingState, STEP_PATHS } from "../../../lib/onboarding-state";
 
 export async function saveArtist(formData: FormData) {
   setArtist({
@@ -13,5 +14,10 @@ export async function saveArtist(formData: FormData) {
     wallet: String(formData.get("wallet") ?? "").trim()
   });
 
-  redirect(`/artists/${String(formData.get("slug") ?? "").trim()}?onboarded=1`);
+  // Advance onboarding state and redirect to next step
+  const state = getOnboardingState();
+  const next = advanceOnboarding(state, "profile");
+  setOnboardingState(next);
+
+  redirect(STEP_PATHS[next.currentStep]);
 }

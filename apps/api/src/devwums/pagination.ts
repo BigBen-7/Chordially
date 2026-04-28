@@ -43,7 +43,9 @@ export function paginationMiddleware(req: Request, _res: Response, next: NextFun
   next();
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
       pagination: PaginationParams;

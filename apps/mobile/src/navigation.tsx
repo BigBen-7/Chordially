@@ -14,6 +14,7 @@ export type FanTabParams = {
   Feed: undefined;
   Discover: undefined;
   Tipping: { artistId: string };
+  ArtistProfile: { slug: string };
 };
 
 export type ArtistTabParams = {
@@ -59,6 +60,7 @@ function FanNavigator() {
       <FanTab.Screen name="Feed" component={Screen} />
       <FanTab.Screen name="Discover" component={Screen} />
       <FanTab.Screen name="Tipping" component={Screen} />
+      <FanTab.Screen name="ArtistProfile" component={Screen} />
     </FanTab.Navigator>
   );
 }

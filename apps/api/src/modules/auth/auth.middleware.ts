@@ -2,7 +2,9 @@ import type { NextFunction, Request, Response } from "express";
 import { getUserById, isBanned } from "./auth.store.js";
 import { verifyToken } from "./auth.tokens.js";
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
       authUser?: ReturnType<typeof getUserById>;
