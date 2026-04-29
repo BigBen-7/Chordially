@@ -1,5 +1,6 @@
 "use server";
 
+// CHORD-115: After payout, redirect to preview step before publishing
 import { redirect } from "next/navigation";
 import { getArtist, setArtist } from "../../../../lib/artist";
 import { getOnboardingState, advanceOnboarding, setOnboardingState, STEP_PATHS } from "../../../../lib/onboarding-state";

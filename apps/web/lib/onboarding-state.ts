@@ -1,9 +1,10 @@
 // CHORD-119: Onboarding resume links – persist step progress across devices
+// CHORD-115: Added preview step before publishing
 import { cookies } from "next/headers";
 
-export type OnboardingStep = "profile" | "media" | "payout" | "complete";
+export type OnboardingStep = "profile" | "media" | "payout" | "preview" | "complete";
 
-export const STEPS: OnboardingStep[] = ["profile", "media", "payout", "complete"];
+export const STEPS: OnboardingStep[] = ["profile", "media", "payout", "preview", "complete"];
 
 export interface OnboardingState {
   currentStep: OnboardingStep;
@@ -55,6 +56,7 @@ export const STEP_PATHS: Record<OnboardingStep, string> = {
   profile: "/artist/onboarding",
   media: "/artist/onboarding/media",
   payout: "/artist/onboarding/payout",
+  preview: "/artist/onboarding/preview",
   complete: "/artist/dashboard"
 };
 
