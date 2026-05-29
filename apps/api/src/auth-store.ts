@@ -4,6 +4,7 @@ import type { AuthErrorCode, AuthSession, AuthUser, RefreshToken } from "@chordi
 
 import { env } from "./env.js";
 import { signAccessToken } from "./token-service.js";
+import { lockoutRemaining, recordFailure, recordSuccess } from "./lockout-store.js";
 
 /**
  * Typed service-layer error. Carries an AuthErrorCode so the centralized
