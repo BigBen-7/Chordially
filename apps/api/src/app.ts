@@ -7,10 +7,12 @@ import {
   listUsers,
   loginUser,
   logoutUser,
+  logoutAllSessions,
   registerUser,
   rotateRefreshToken,
 } from "./auth-store.js";
 import { requireAuth } from "./auth-middleware.js";
+import { rateLimiters } from "./rate-limiter.js";
 
 const registerSchema = z.object({
   email: z.string().email(),
@@ -44,28 +46,48 @@ export function createApp(): Express {
     res.json({ users: listUsers() });
   });
 
-  app.post("/api/v1/auth/register", (req, res) => {
+  // #320 – opaque duplicate-account response; #321 – rate-limited
+  app.post("/api/v1/auth/register", rateLimiters.register, (req, res) => {
     const payload = registerSchema.parse(req.body);
-    const user = registerUser(payload);
-    res.status(201).json({ message: "Registration starter flow completed.", user });
+    try {
+      const user = registerUser(payload);
+      res.status(201).json({ message: "Registration starter flow completed.", user });
+    } catch {
+      // Opaque response: do not reveal whether the account exists.
+      res.status(409).json({ error: "REGISTRATION_FAILED", message: "Unable to complete registration." });
+    }
   });
 
-  app.post("/api/v1/auth/login", (req, res) => {
+  // #321 – rate-limited
+  app.post("/api/v1/auth/login", rateLimiters.login, (req, res) => {
     const payload = loginSchema.parse(req.body);
     const { session, refreshToken } = loginUser(payload);
     res.status(200).json({ message: "Login starter flow completed.", session, refreshToken });
   });
 
+  // #318 – single-session logout: revokes only the supplied token
   app.post("/api/v1/auth/logout", (req, res) => {
     const { token } = logoutSchema.parse(req.body);
     const revoked = logoutUser(token);
-    res.status(200).json({ message: revoked ? "Session revoked." : "Session was already absent." });
+    res.status(200).json({
+      message: revoked ? "Session revoked." : "Session was already absent.",
+      sessionsRevoked: revoked ? 1 : 0,
+    });
+  });
+
+  // #319 – global sign-out: revokes every active session for the authenticated user
+  app.post("/api/v1/auth/logout-all", requireAuth, (req, res) => {
+    const session = res.locals["session"] as import("@chordially/types").AuthSession;
+    const count = logoutAllSessions(session.userId);
+    res.status(200).json({
+      message: "All sessions revoked.",
+      sessionsRevoked: count,
+    });
   });
 
   /**
    * GET /api/v1/auth/me
    * Returns the active contributor identity and session metadata.
-   * Requires a valid Bearer JWT. Revoked or malformed tokens receive a 401.
    */
   app.get("/api/v1/auth/me", requireAuth, (req, res) => {
     const session = res.locals["session"] as import("@chordially/types").AuthSession;
@@ -77,12 +99,8 @@ export function createApp(): Express {
     res.json({ user, session });
   });
 
-  /**
-   * POST /api/v1/auth/refresh
-   * Rotates a refresh token: invalidates the old one and issues a fresh
-   * access token + refresh token pair. Replay attempts are rejected with 401.
-   */
-  app.post("/api/v1/auth/refresh", (req, res) => {
+  // #321 – rate-limited
+  app.post("/api/v1/auth/refresh", rateLimiters.refresh, (req, res) => {
     const { refreshToken } = refreshSchema.parse(req.body);
     const result = rotateRefreshToken(refreshToken);
     res.json({ session: result.session, refreshToken: result.refreshToken });

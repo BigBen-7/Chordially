@@ -59,12 +59,25 @@ export function loginUser(input: LoginInput): { session: AuthSession; refreshTok
   return { session, refreshToken: rt.token };
 }
 
-/** Revokes a session by marking revokedAt rather than deleting the record. */
+/** Revokes a single session by token. Leaves all other sessions intact. */
 export function logoutUser(token: string): boolean {
   const session = sessions.get(token);
   if (!session) return false;
   session.revokedAt = new Date().toISOString();
   return true;
+}
+
+/** Revokes every active session belonging to a user. Returns the count revoked. */
+export function logoutAllSessions(userId: string): number {
+  const now = new Date().toISOString();
+  let count = 0;
+  for (const session of sessions.values()) {
+    if (session.userId === userId && !session.revokedAt) {
+      session.revokedAt = now;
+      count++;
+    }
+  }
+  return count;
 }
 
 /** Returns the session only if it exists and has not been revoked. */
