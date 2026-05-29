@@ -54,7 +54,10 @@ export type AuthErrorCode =
   | "INVALID_CREDENTIALS"
   | "INVALID_SESSION"
   | "POLICY_VIOLATION"
-  | "MALFORMED_REQUEST";
+  | "MALFORMED_REQUEST"
+  | "FORBIDDEN"
+  | "TOKEN_EXPIRED"
+  | "TOKEN_INVALID";
 
 export type AuthErrorResponse = {
   error: AuthErrorCode;

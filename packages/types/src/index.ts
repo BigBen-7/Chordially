@@ -17,6 +17,10 @@ export type AuthSession = {
   revokedAt?: string;
   /** Hint about where the session originated, e.g. "web" or "mobile". */
   origin?: string;
+  /** Client IP address captured at session creation (redacted in logs). */
+  ip?: string;
+  /** User-agent string captured at session creation (redacted in logs). */
+  userAgent?: string;
 };
 
 export type RefreshToken = {

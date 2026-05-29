@@ -6,7 +6,7 @@ import { env } from "./env.js";
 import { signAccessToken } from "./token-service.js";
 
 type RegisterInput = { email: string; password: string; displayName: string };
-type LoginInput    = { email: string; password: string; origin?: string };
+type LoginInput    = { email: string; password: string; origin?: string; ip?: string; userAgent?: string };
 
 const users    = new Map<string, AuthUser & { password: string }>();
 const sessions = new Map<string, AuthSession>();
@@ -52,6 +52,8 @@ export function loginUser(input: LoginInput): { session: AuthSession; refreshTok
     createdAt:   now,
     lastSeenAt:  now,
     origin:      input.origin,
+    ip:          input.ip,
+    userAgent:   input.userAgent,
   };
   sessions.set(session.token, session);
 
@@ -94,6 +96,12 @@ export function getUserById(id: string): AuthUser | undefined {
   if (!entry) return undefined;
   const { password: _, ...safe } = entry;
   return safe;
+}
+
+export function updateUserPassword(userId: string, newPassword: string): void {
+  const entry = [...users.values()].find((u) => u.id === userId);
+  if (!entry) throw new Error("User not found.");
+  entry.password = newPassword;
 }
 
 // ── Refresh token helpers ─────────────────────────────────────────────────────
