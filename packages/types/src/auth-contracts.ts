@@ -27,6 +27,7 @@ export type RegisterResponse = {
 export type LoginResponse = {
   message: string;
   session: AuthSession;
+  refreshToken: string;
 };
 
 export type LogoutResponse = {

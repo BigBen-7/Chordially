@@ -1,7 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Linking, SafeAreaView, ScrollView, StyleSheet, Text, View, TextInput, Pressable } from "react-native";
 
 import { mobileConfig } from "./src/config";
+import { createMobileAuthStore } from "./src/auth/mobile-auth-store";
+import { mobileAuthClient } from "./src/auth/mobile-auth-client";
 
 type Screen = "home" | "resetRequest" | "resetComplete" | "verifyPending" | "restricted";
 
@@ -23,6 +25,16 @@ function AuthField(props: {
 }
 
 export default function App() {
+  const authStore = useMemo(() => createMobileAuthStore(), []);
+  const [screen, setScreen] = useState<Screen>("home");
+  const [token, setToken] = useState("");
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [msg, setMsg] = useState<string | null>(null);
+  const [serverError, setServerError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
+
   const [state, setState] = useState(authStore.getState());
 
   useEffect(() => authStore.subscribe(setState), []);
@@ -36,8 +48,117 @@ export default function App() {
     });
   }, []);
 
+  const signedIn = state.isAuthenticated;
+  const emailError = email && !email.includes("@") ? "Enter a valid email address." : undefined;
+  const passwordError = password && password.length < 8 ? "Password must be at least 8 characters." : undefined;
+
   if (state.isBooting) {
     return <View style={styles.container}><Text style={styles.title}>Booting auth…</Text></View>;
+  }
+
+  async function logout() {
+    setServerError(null);
+    setMsg(null);
+    if (accessToken) {
+      await mobileAuthClient.logout(accessToken);
+    }
+    setAccessToken(null);
+    authStore.boot({ sessionId: null, sessions: [] });
+  }
+
+  async function signIn() {
+    if (emailError || passwordError) return;
+    setPending(true);
+    setServerError(null);
+    setMsg(null);
+    try {
+      const result = await mobileAuthClient.login({ email, password });
+      if (!result.ok) {
+        setServerError(result.error.message);
+        return;
+      }
+
+      setAccessToken(result.data.session.token);
+      authStore.boot({
+        sessionId: result.data.session.token,
+        sessions: [{ id: "this-device", device: "This device", lastSeen: "just now" }],
+      });
+
+      const me = await mobileAuthClient.me(result.data.session.token);
+      if (me.ok) setMsg(`Signed in as ${me.data.user.displayName}.`);
+      else setMsg("Signed in.");
+    } catch {
+      setServerError("Something went wrong. Please try again.");
+    } finally {
+      setPending(false);
+    }
+  }
+
+  async function requestReset() {
+    if (emailError) return;
+    setPending(true);
+    setServerError(null);
+    setMsg(null);
+    try {
+      const res = await fetch(`${mobileConfig.apiBaseUrl}/api/v1/auth/reset/request`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      if (!res.ok) throw new Error("reset request failed");
+      setMsg("If an account exists, a reset link has been sent.");
+    } catch {
+      setServerError("Something went wrong. Please try again.");
+    } finally {
+      setPending(false);
+    }
+  }
+
+  async function completeReset() {
+    if (passwordError) return;
+    setPending(true);
+    setServerError(null);
+    setMsg(null);
+    try {
+      const res = await fetch(`${mobileConfig.apiBaseUrl}/api/v1/auth/reset/complete`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, password }),
+      });
+      const body = (await res.json()) as { error?: string; message?: string };
+      if (!res.ok) {
+        setServerError(body.message ?? "Unable to complete password reset.");
+        return;
+      }
+      setMsg(body.message ?? "Password updated.");
+    } catch {
+      setServerError("Something went wrong. Please try again.");
+    } finally {
+      setPending(false);
+    }
+  }
+
+  async function resendVerification() {
+    setPending(true);
+    setServerError(null);
+    setMsg(null);
+    try {
+      const res = await fetch(`${mobileConfig.apiBaseUrl}/api/v1/auth/verify/confirm`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
+      });
+      const body = (await res.json()) as { error?: string; message?: string };
+      if (!res.ok) {
+        setServerError(body.message ?? "Unable to confirm verification token.");
+        return;
+      }
+      setMsg(body.message ?? "Email verified.");
+    } catch {
+      setServerError("Something went wrong. Please try again.");
+    } finally {
+      setPending(false);
+    }
   }
 
   async function parseDeepLink() {
@@ -79,6 +200,9 @@ export default function App() {
         <View style={styles.panel}>
           <Text style={styles.panelTitle}>Auth actions</Text>
           <View style={styles.row}>
+            <Pressable style={styles.btn} onPress={signIn} disabled={pending || Boolean(emailError) || Boolean(passwordError)}>
+              <Text>{pending ? "Signing in..." : "Sign in"}</Text>
+            </Pressable>
             <Pressable style={styles.btn} onPress={() => setScreen("resetRequest")}><Text>Reset Request</Text></Pressable>
             <Pressable style={styles.btn} onPress={() => setScreen("resetComplete")}><Text>Reset Complete</Text></Pressable>
           </View>
