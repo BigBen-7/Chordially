@@ -1,21 +1,17 @@
 import type { Metadata } from "next";
-import { OfflineBanner } from "../components/ui/offline-banner";
+import type { ReactNode } from "react";
+
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Chordially",
-  description: "Support artists in real time."
+  title: "Chordially Starter",
+  description: "Open source hackathon starter for Chordially."
 };
 
-export default function RootLayout({
-  children
-}: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body>
-        <OfflineBanner />
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
