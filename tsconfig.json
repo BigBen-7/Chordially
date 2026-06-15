@@ -1,5 +1,5 @@
 {
-  "extends": "./packages/config/tsconfig.base.json",
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "noEmit": true
   },
@@ -8,5 +8,6 @@
     "apps/**/*.ts",
     "apps/**/*.tsx",
     "packages/**/*.ts"
-  ]
+  ],
+  "exclude": ["**/node_modules", "**/dist", "**/.next", "**/.expo"]
 }

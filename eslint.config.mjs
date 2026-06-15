@@ -9,7 +9,8 @@ export default tseslint.config(
       "**/dist/**",
       "**/.next/**",
       "**/.expo/**",
-      "**/coverage/**"
+      "**/coverage/**",
+      "**/generated/**"
     ]
   },
   {

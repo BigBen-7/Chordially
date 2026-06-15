@@ -1,9 +1,0 @@
-{
-  "expo": {
-    "name": "Chordially",
-    "slug": "chordially",
-    "version": "0.1.0",
-    "orientation": "portrait",
-    "assetBundlePatterns": ["**/*"]
-  }
-}

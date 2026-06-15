@@ -14,3 +14,5 @@ next-env.d.ts
 **/.expo
 .turbo
 .local/
+*.db
+*.db-journal
