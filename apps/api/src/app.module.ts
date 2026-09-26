@@ -5,8 +5,9 @@ import { WalletModule } from './modules/wallet/wallet.module.js';
 import { CreatorModule } from './modules/creators/creator.module.js';
 import { FanModule } from './modules/fans/fan.module.js';
 import { DepositModule } from './modules/deposits/deposit.module.js';
+import { CreatorPayoutModule } from './modules/creator-payouts/creator-payout.module.js';
 
 @Module({
-  imports: [AuthModule, UserModule, WalletModule, CreatorModule, FanModule, DepositModule],
+  imports: [AuthModule, UserModule, WalletModule, CreatorModule, FanModule, DepositModule, CreatorPayoutModule],
 })
 export class AppModule {}
