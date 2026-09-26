@@ -8,8 +8,9 @@ import { DepositModule } from './modules/deposits/deposit.module.js';
 import { CreatorPayoutModule } from './modules/creator-payouts/creator-payout.module.js';
 import { NotificationModule } from './modules/notifications/notification.module.js';
 import { SearchModule } from './modules/search/search.module.js';
+import { AdminModule } from './modules/admin/admin.module.js';
 
 @Module({
-  imports: [AuthModule, UserModule, WalletModule, CreatorModule, FanModule, DepositModule, CreatorPayoutModule, NotificationModule, SearchModule],
+  imports: [AuthModule, UserModule, WalletModule, CreatorModule, FanModule, DepositModule, CreatorPayoutModule, NotificationModule, SearchModule, AdminModule],
 })
 export class AppModule {}
