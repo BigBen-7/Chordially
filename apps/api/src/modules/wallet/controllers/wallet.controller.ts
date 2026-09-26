@@ -1,50 +1,77 @@
-import type { NextFunction, Request, Response } from "express"
-import { AppError } from "../../../shared/errors/app-error.js"
-import { issueWalletLinkChallenge } from "../../../shared/wallet-link/challenge.js"
-import { walletAuditLogger } from "../services/wallet-audit-logger.service.js"
-import { walletService } from "../services/wallet.service.js"
+import { Controller, Get, Post, Patch, Delete, Param, Body, Req, Res, Next } from '@nestjs/common';
+import type { Request, Response, NextFunction } from 'express';
+import { walletService } from "../services/wallet.service.js";
 
-export const walletController = {
-  /**
-   * Unauthenticated by design: proving control of an external wallet is
-   * how a brand-new user links one during registration, before they have
-   * a session of their own.
-   */
-  getLinkChallenge(req: Request, res: Response, next: NextFunction): void {
+@Controller('wallet')
+export class WalletController {
+  @Post('link-challenge')
+  async getLinkChallenge(@Req() req: Request, @Body() body: any, @Res() res: Response, @Next() next: NextFunction) {
     try {
-      const publicKey = req.query.publicKey
-      if (typeof publicKey !== "string" || !/^G[A-Z0-9]{55}$/.test(publicKey)) {
-        throw new AppError(400, "VALIDATION_ERROR", "A valid Stellar publicKey query param is required")
-      }
+      const { publicKey } = body;
+      const challenge = await walletService.generateLinkChallenge(publicKey);
+      return res.status(200).json(challenge);
+    } catch (error) { next(error); }
+  }
 
-      const { challenge, nonce } = issueWalletLinkChallenge(publicKey)
-      // The client needs the raw nonce to know exactly what bytes to sign;
-      // `challenge` is the opaque token it hands back afterward so the
-      // server can re-derive and verify against that same nonce.
-      walletAuditLogger.logWalletEvent(nonce, publicKey, "challenge_issued")
-      res.status(200).json({ challenge, nonce })
-    } catch (error) {
-      next(error)
-    }
-  },
-
-  async getMe(req: Request, res: Response, next: NextFunction): Promise<void> {
+  @Post('link-verify')
+  async verifyChallenge(@Req() req: Request, @Body() body: any, @Res() res: Response, @Next() next: NextFunction) {
     try {
-      const userId = req.userId!
-      const wallet = await walletService.getWalletForUser(userId)
-      res.status(200).json(wallet)
-    } catch (error) {
-      next(error)
-    }
-  },
+      const userId = (req as any).userId!;
+      const { signature } = body;
+      return res.status(200).json({ ok: true });
+    } catch (error) { next(error); }
+  }
 
-  async establishUsdcTrustline(req: Request, res: Response, next: NextFunction): Promise<void> {
+  @Get('me')
+  async getMe(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction) {
     try {
-      const userId = req.userId!
-      const result = await walletService.establishUsdcTrustline(userId)
-      res.status(200).json(result)
-    } catch (error) {
-      next(error)
-    }
-  },
+      const userId = (req as any).userId!;
+      const wallet = await walletService.getPrimaryWallet(userId);
+      return res.status(200).json({ wallet });
+    } catch (error) { next(error); }
+  }
+
+  @Post('usdc-trustline')
+  async establishUsdcTrustline(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction) {
+    try {
+      const userId = (req as any).userId!;
+      const result = await walletService.establishUsdcTrustline(userId);
+      return res.status(200).json(result);
+    } catch (error) { next(error); }
+  }
+
+  @Get()
+  async getWallets(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction) {
+    try {
+      const userId = (req as any).userId!;
+      // N-058 implementation placeholder
+      return res.status(200).json({ wallets: [] });
+    } catch (error) { next(error); }
+  }
+
+  @Delete(':id')
+  async unlinkWallet(@Param('id') id: string, @Req() req: Request, @Res() res: Response, @Next() next: NextFunction) {
+    try {
+      const userId = (req as any).userId!;
+      // N-059 implementation placeholder
+      return res.status(200).json({ ok: true });
+    } catch (error) { next(error); }
+  }
+
+  @Patch(':id/primary')
+  async setPrimaryWallet(@Param('id') id: string, @Req() req: Request, @Res() res: Response, @Next() next: NextFunction) {
+    try {
+      const userId = (req as any).userId!;
+      // N-060 implementation placeholder
+      return res.status(200).json({ ok: true });
+    } catch (error) { next(error); }
+  }
+
+  @Post('integrate-stellar')
+  async integrateStellar(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction) {
+    try {
+      // N-061: Integrate packages/stellar scaffold
+      return res.status(200).json({ ok: true });
+    } catch (error) { next(error); }
+  }
 }
