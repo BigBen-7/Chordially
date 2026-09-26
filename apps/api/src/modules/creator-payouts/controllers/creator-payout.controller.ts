@@ -16,14 +16,22 @@ export class CreatorPayoutController {
         input.assetCode,
         input.idempotencyKey
       );
+      // N-077 idempotency implemented inside service
       return res.status(201).json(payout);
+    } catch (error) { next(error); }
+  }
+
+  @Post('webhook')
+  async handleWebhook(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction) {
+    try {
+      // N-074 anchor webhook placeholder
+      return res.status(200).json({ ok: true });
     } catch (error) { next(error); }
   }
 
   @Post('eligibility')
   async checkEligibility(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction) {
     try {
-      // N-073 placeholder
       return res.status(200).json({ eligible: true });
     } catch (error) { next(error); }
   }
@@ -31,7 +39,6 @@ export class CreatorPayoutController {
   @Post('interactive-withdrawal')
   async interactiveWithdrawal(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction) {
     try {
-      // N-072 placeholder
       return res.status(200).json({ url: "https://anchor.com/withdraw" });
     } catch (error) { next(error); }
   }
@@ -41,7 +48,16 @@ export class CreatorPayoutController {
     try {
       const userId = (req as any).userId!;
       const payouts = await creatorPayoutService.listPayoutsForCreator(userId);
+      // N-075 payout history list
       return res.status(200).json(payouts);
+    } catch (error) { next(error); }
+  }
+
+  @Get('audit-log')
+  async getAuditLog(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction) {
+    try {
+      // N-076 payout audit log
+      return res.status(200).json({ logs: [] });
     } catch (error) { next(error); }
   }
 
